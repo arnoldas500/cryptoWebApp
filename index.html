@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+    <head>
+	<meta charset="utf-8">
+
+	<style>
+	 body {
+	     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	 }
+
+	 .graph .axis {
+	     stroke-width: 1;
+	 }
+
+	 .graph .axis .tick line {
+	     stroke: black;
+	 }
+
+	 .graph .axis .tick text {
+	     fill: black;
+	     font-size: 0.7em;
+	 }
+
+	 .graph .axis .domain {
+	     fill: none;
+	     stroke: black;
+	 }
+
+	 .graph .group {
+	     fill: none;
+	     stroke: black;
+	     stroke-width: 1.5;
+	 }
+	</style>
+    </head>
+    <body>
+	<div class="graph"></div>
+
+	<script src="https://d3js.org/d3.v4.min.js"></script>
+	<script>
+	 d3.json("http://169.226.135.210:3000/", function(error, data){
+	     if(error){
+		 console.log(error)
+	     }
+	     console.log(data)
+	     d3.select("body").text(data.response)
+	     var tweets = data;
+
+	     var svg = d3.select("body").append('svg').attr('width',960).attr('height',500),
+		 margin = {top: 20, right: 20, bottom: 30, left: 50},
+		 width = 900//+svg.attr("width") - margin.left - margin.right,
+	     height = 450//+svg.attr("height") - margin.top - margin.bottom,
+	     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+	    // var parseTime = d3.timeParse("%Y-%m-%dT %H:%M:%S");
+
+	     var x = d3.scaleTime()
+		       .rangeRound([0, width]);
+
+	     var y = d3.scaleLinear()
+		       .rangeRound([height, 0]);
+
+	     var line = d3.line()
+			  .x(function(d) { return x(d.time); })
+			  .y(function(d) { return y(d.polarity); });
+
+	     tweets = tweets.map(d => {
+		 return {id: d[0] , time: new Date(d[1]), tweet:d[2], polarity:+d[3], subjectivity:+d[4]}
+	     })
+	     console.log('tweets',tweets)
+
+	     x.domain(d3.extent(tweets, function(d) { return d.time; }));
+	     console.log(d3.extent(tweets, function(d) { return d.time; }))
+	     
+	     y.domain([-1,1]);
+
+	     g.append("g")
+	      .attr("transform", "translate(0," + height + ")")
+	      .call(d3.axisBottom(x))
+	      .select(".domain")
+	      .remove();
+
+	     g.append("g")
+	      .call(d3.axisLeft(y))
+	      .append("text")
+	      .attr("fill", "#000")
+	      .attr("transform", "rotate(-90)")
+	      .attr("y", 6)
+	      .attr("dy", "0.71em")
+	      .attr("text-anchor", "end")
+	      .text("Price ($)");
+
+	     g.append("path")
+	      .datum(tweets)
+	      .attr("fill", "none")
+	      .attr("stroke", "steelblue")
+	      .attr("stroke-linejoin", "round")
+	      .attr("stroke-linecap", "round")
+	      .attr("stroke-width", 1.5)
+	      .attr("d", line);
+	     
+	 })
+	     
+	</script>
+    </body>
+</html>
