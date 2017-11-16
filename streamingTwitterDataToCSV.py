@@ -75,7 +75,7 @@ d %H:%M:%S')
                 #pd.to_datetime(df['Date'])                                                                                                             
 
             #dropping duplicated timestamps                                                                                                             
-            df_clean = df.drop_duplicates(subset=['Date'],keep='last')
+            #df_clean = df.drop_duplicates(subset=['Date'],keep='last')                                                                                 
 
             #removing rows with polarity values of zero                                                                                                 
             df_clean = df[df.Polarity != 0]
@@ -94,13 +94,13 @@ d %H:%M:%S')
 
             #reset the index                                                                                                                            
             df2 = df2.reset_index()
-            print(df2.head())
             #saving df to csv file                                                                                                                      
-            #df2.to_csv('bitcoinSentiment.csv', mode='a') #later add if codition chceking if not empty then append mode='a'                             
+            print(df2.head())
+            #dropping duplicated timestamps                                                                                                             
+            df_clean = df.drop_duplicates(subset=['Date'],keep='last')
+            df2.to_csv('bitcoinSentimentClean.csv', mode='w+') #later add if codition chceking if not empty then append mode='a'                        
 
             #stream.filter(track=[t], stall_warnings=True)                                                                                              
-
-#print(df)                                                                                                                                              
             #df = data                                                                                                                                  
             #print(df.head())                                                                                                                           
         #saving to a file                                                                                                                               
@@ -109,9 +109,13 @@ d %H:%M:%S')
         #add new line                                                                                                                                   
             #savef.write('\n')                                                                                                                          
             #savef.close()                                                                                                                              
-        except BaseException as e:
+
+        #added to catch base exception, thread exception and                                                                                            
+        except (IncompleteRead, BaseException, SocketError, ProtocolError, Exception) as e:
             print("failed ondata,",str(e))
-            time.sleep(5)
+            time.sleep(25)
+            #clear the last thrown exception                                                                                                            
+            sys.exc_clear()
 
         #saving to a database                                                                                                                           
         '''                                                                                                                                             
@@ -124,12 +128,11 @@ d %H:%M:%S')
         c.execute("INSERT INTO taula (time, username, tweet) VALUES (%s,%s,%s)",                                                                        
             (time.time(), username, tweet))                                                                                                             
                                                                                                                                                         
-        conn.commit()                                                                                                                                   
-                                                                                                                                                        
-        print((username,tweet))                                                                                                                         
+        conn.commit()                               
+         print((username,tweet))                                                                                                                         
         '''
         return True
-        
+
     def on_error(self, status):
         print(status)
         if status == 420:
@@ -140,4 +143,3 @@ auth.set_access_token(access_token, access_token_secret)
 
 twitterStream = Stream(auth, listener())
 twitterStream.filter(track=["bitcoin"], stall_warnings=True, async=True)
-        
