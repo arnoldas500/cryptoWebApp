@@ -105,14 +105,14 @@
 	<div id="wrapper">
 	    <div id="menu">
 		<p class="welcome">Welcome, <b></b></p>
-	
+		
 		<div style="clear:both"></div>
 	    </div>
 	    
 	    <div id="chatbox"></div>
 	    
 	    
-		
+	    
 	    </form>
 	</div>
 
@@ -126,6 +126,7 @@
 
 	 var milliseconds = 300
 	 setInterval(getData, milliseconds);
+	 //getData();
 	 //setInterval (loadLog, 2500);
 	 //window.setTimeout(getData(), milliseconds);
 	 //getData();
@@ -172,7 +173,7 @@
 		 //    $('#chatbox').text(data[tweet]);
 		 //}
 		 
-		 //makePolarityGraphs(tweets);
+		 makePolarityGraphs(tweets);
 		 //makeSubjectivityGraphs(tweets);
 	     })
 	 }
@@ -180,11 +181,15 @@
 	 function makePolarityGraphs(tweets){
 	     
 	     //tweets = getData()
-
+	     d3.select("svg").remove()
 	     var svg = d3.select("body").append('svg').attr('width',960).attr('height',500),
 		 margin = {top: 20, right: 20, bottom: 30, left: 50},
 		 width = 900//+svg.attr("width") - margin.left - margin.right,
 	     height = 450//+svg.attr("height") - margin.top - margin.bottom,
+	     //d3.select svg .remove -makes it so only one at a time
+	     //g = d3.select(svg.remove())
+	     //d3.select( svg ).remove()
+	     //clear svg before reloading 
 	     g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 	     // var parseTime = d3.timeParse("%Y-%m-%dT %H:%M:%S");
